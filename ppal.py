@@ -56,8 +56,8 @@ def main():
         idx = turn % num_players
         print(f"Animales fotografiados por {current_player.name}: {len(photographed_animals[idx])} de {total_animals}")
 
-        # Mostrar visión antes de moverse
-        game_map.display_vision(current_player.position, current_player.vision_pattern)
+        # Mostrar visión antes de moverse, usando el patrón del nivel
+        game_map.display_vision(current_player.position, config["vision"])
         
         # Condiciones de fin de juego: Si algún jugador fotografía todos los animales o si solo queda un con energía.
         # Para simplificar, terminamos el juego cuando algún jugador fotografía todos los animales o se queda sin energía.
