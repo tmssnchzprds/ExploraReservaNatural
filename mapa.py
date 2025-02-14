@@ -60,6 +60,23 @@ class Map:
                     cell = "?"
                 row += cell + " "
             print(row)
+    
+    def display_vision(self, position, vision_pattern):
+        """
+        Muestra en consola las casillas que se pueden ver desde la posición dada, según el patrón de visión.
+        Se utiliza la aritmética modular para cubrir los bordes.
+        :param position: Tupla (i, j) con la posición del jugador.
+        :param vision_pattern: Lista de tuplas (dx, dy) que indican los desplazamientos visibles.
+        """
+        i0, j0 = position
+        print("Visión desde tu posición:")
+        for dx, dy in vision_pattern:
+            i = (i0 + dx) % self.size
+            j = (j0 + dy) % self.size
+            content = self.content[i][j] if self.revealed[i][j] or True else "?"  
+            # Aquí decidimos mostrar el contenido real para que el jugador vea qué hay en esas casillas.
+            print(f"({i0+dx}, {j0+dy}) -> {content}")
+        print("-" * 30)
 
 # Ejemplo de uso para pruebas
 if __name__ == "__main__":
@@ -73,3 +90,7 @@ if __name__ == "__main__":
     game_map.reveal_cell(0, 0)
     game_map.reveal_cell(2, 3)
     game_map.display_revealed()
+    
+    # Mostrar visión desde la posición (2,2) usando el patrón del nivel facil
+    print("\nVisión desde (2,2) en nivel facil:")
+    game_map.display_vision((2,2), levels["facil"]["vision"])
