@@ -59,7 +59,7 @@ class Map:
                 row += cell + " "
             print(row)
 
-    def display_vision(self, position, vision_pattern, player_revealed):
+    def display_vision(self, position, vision_pattern):
         """
         Muestra en consola el mapa completo, pero solo muestra el contenido real de las celdas que
         se encuentran en el conjunto de visión del jugador (calculado a partir de vision_pattern)
@@ -82,9 +82,9 @@ class Map:
         for i in range(self.size):
             row = []
             for j in range(self.size):
-                if (i, j) in visible_set and player_revealed[i][j]:
+                if (i, j) in visible_set:
                     # Si la celda es visible para el jugador y fue revelada por él, mostrar contenido real.
-                    cell = self.content[i][j] if self.content[i][j] != " " else "."
+                    cell = self.content[i][j] if i!=0 and j!=0 else "X"
                     row.append(cell)
                 else:
                     row.append("?")
