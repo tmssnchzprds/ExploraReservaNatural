@@ -27,19 +27,25 @@ def main():
         except ValueError:
             print("Por favor, introduce un número válido.")
 
-    # Crear la lista de exploradores; el último será la máquina
+    # Crear la lista de exploradores; el último será la máquina.
     explorers = []
     for i in range(num_players - 1):
         name = input(f"Nombre del jugador {i+1}: ").strip() or f"Jugador{i+1}"
-        explorers.append(Explorer(name, energy=config["max_energia"], start_pos=(0,0)))
-    explorers.append(Explorer("Máquina", energy=config["max_energia"], start_pos=(0,0)))
+        explorers.append(Explorer(name, energy=config["max_energia"], board_size=board_size))
+    explorers.append(Explorer("Máquina", energy=config["max_energia"], board_size=board_size))
 
-    # Crear un único mapa global para todos los jugadores
+    # Crear un único mapa global para todos los jugadores.
     game_map = Map(level)
 
-    # Cada jugador comienza en la misma posición; revelamos esas posiciones en el mapa
+    # Cada jugador parte en una posición aleatoria; actualizamos globalmente sus posiciones reveladas.
     for ex in explorers:
-        game_map.reveal_cell(ex.position[0], ex.position[1])
+        i, j = ex.position
+        # Se puede optar por revelar en el mapa global la posición del jugador (si fuera compartido)
+        # pero aquí solo actualizamos la vista privada de cada jugador.
+        # game_map.reveal_cell_global(i, j)
+        # La matriz personal de cada jugador ya se inicializa con True en su posición de partida.
+
+        pass
 
     photographed_animals = [set() for _ in range(num_players)]
     total_animals = config["animales"]
@@ -53,10 +59,11 @@ def main():
         idx = turn % num_players
         print(f"Animales fotografiados por {current_player.name}: {len(photographed_animals[idx])} de {total_animals}")
         
-        # Mostrar visión usando el mapa global y el patrón de visión del nivel (config["vision"])
-        game_map.display_vision(current_player.position, config["vision"])
+        # Mostrar visión para el jugador actual: se muestra el mapa global, pero sólo se revelan
+        # las celdas que estén en su visión (según config["vision"]) y que él haya visto.
+        game_map.display_vision(current_player.position, config["vision"], current_player.revealed)
         
-        # Condiciones de fin de juego
+        # Condiciones de fin de juego.
         if len(photographed_animals[idx]) >= total_animals:
             print(f"¡Felicidades {current_player.name}! Has fotografiado todos los animales.")
             break
@@ -70,7 +77,7 @@ def main():
                 turn += 1
                 continue
 
-        # Para la máquina se selecciona un movimiento aleatorio
+        # Para la máquina se selecciona un movimiento aleatorio.
         if current_player.name == "Máquina":
             move_cmd = random.choice(['W', 'A', 'S', 'D'])
             print(f"La máquina mueve: {move_cmd}")
@@ -93,9 +100,11 @@ def main():
             turn += 1
             continue
 
-        game_map.reveal_cell(new_i, new_j)
+        # Cuando el jugador se mueve, actualizamos su vista privada (ya se marca True en move).
+        # Se puede, si se desea, revelar la celda en el mapa global también:
+        # game_map.reveal_cell_global(new_i, new_j)
 
-        # Aplicar efecto del elemento utilizando elementos.py
+        # Aplicar efecto del elemento (usando elementos.py)
         elem = obtener_elemento(cell, config)
         if elem is not None:
             if cell == "A":
