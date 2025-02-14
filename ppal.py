@@ -61,7 +61,7 @@ def main():
         
         # Mostrar visión para el jugador actual: se muestra el mapa global, pero sólo se revelan
         # las celdas que estén en su visión (según config["vision"]) y que él haya visto.
-        game_map.display_vision(current_player.position, config["vision"], current_player.revealed)
+        game_map.display_vision(current_player.position, config["vision"])
         
         # Condiciones de fin de juego.
         if len(photographed_animals[idx]) >= total_animals:
