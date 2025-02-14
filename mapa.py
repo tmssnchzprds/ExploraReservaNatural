@@ -1,4 +1,3 @@
-# mapa.py
 import random
 from var_globals import levels
 
@@ -72,7 +71,7 @@ class Map:
         :param vision_pattern: Lista de tuplas (dx, dy) que indican los desplazamientos visibles.
         """
         i0, j0 = position
-        # Aseguramos que la posición central (0,0) esté incluida en el patrón.
+        # Aseguramos que la posición central (0,0) esté incluida
         full_pattern = set(vision_pattern)
         full_pattern.add((0, 0))
         
