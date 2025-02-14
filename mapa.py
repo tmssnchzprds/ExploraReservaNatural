@@ -84,7 +84,7 @@ class Map:
             for j in range(self.size):
                 if (i, j) in visible_set:
                     # Si la celda es visible para el jugador y fue revelada por él, mostrar contenido real.
-                    cell = self.content[i][j] if (i!=i0 and j!=j0) else "."
+                    cell = self.content[i][j] if (i!=i0 or j!=j0) else "."
                     row.append(cell)
                 else:
                     row.append("?")
