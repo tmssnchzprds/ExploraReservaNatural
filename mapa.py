@@ -76,7 +76,7 @@ class Map:
             content = self.content[i][j] if self.revealed[i][j] or True else "?"  
             # Aquí decidimos mostrar el contenido real para que el jugador vea qué hay en esas casillas.
             # print(f"({i0+dx}, {j0+dy}) -> {content}")
-        display_revealed(self)
+        game_map.display_revealed()
         print("-" * 30)
 
 # Ejemplo de uso para pruebas
