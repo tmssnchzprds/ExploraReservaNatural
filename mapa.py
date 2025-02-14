@@ -1,3 +1,4 @@
+# mapa.py
 import random
 from var_globals import levels
 
@@ -9,7 +10,8 @@ class Map:
         self.size = self.config["board_size"]
         # Creamos el contenido del tablero: inicialmente, cada casilla está vacía (" ")
         self.content = [[" " for _ in range(self.size)] for _ in range(self.size)]
-        # Creamos un tablero de estados (revelado o no): inicialmente todas ocultas (False)
+        # Matriz global de celdas reveladas (para acciones globales, por ejemplo, efectos comunes)
+        # Se usa para efectos globales, pero cada jugador tiene su propia vista.
         self.revealed = [[False for _ in range(self.size)] for _ in range(self.size)]
         # Colocamos los elementos según la configuración:
         self.place_elements("A", self.config["animales"])
@@ -30,25 +32,22 @@ class Map:
                 self.content[i][j] = symbol
                 placed += 1
 
-    def reveal_cell(self, i, j):
-        """
-        Revela la casilla en la posición (i, j). 
-        Se utiliza aritmética modular para asegurar el efecto esférico del tablero.
-        """
+    def reveal_cell_global(self, i, j):
+        """Revela la casilla en el mapa global."""
         i %= self.size
         j %= self.size
         self.revealed[i][j] = True
 
     def get_cell(self, i, j):
-        """Devuelve el contenido de la casilla en (i, j) con envoltura en el tablero."""
+        """Devuelve el contenido de la casilla en (i, j) con aritmética modular."""
         i %= self.size
         j %= self.size
         return self.content[i][j]
 
     def display_revealed(self):
         """
-        Muestra el tablero en la consola. Las casillas reveladas muestran su contenido 
-        (o un punto '.' si está vacía) y las no reveladas se representan con '?'.
+        Muestra el tablero global en la consola. Las casillas reveladas muestran su contenido
+        (o '.' si está vacía) y las no reveladas se representan con '?'.
         """
         for i in range(self.size):
             row = ""
@@ -59,44 +58,36 @@ class Map:
                     cell = "?"
                 row += cell + " "
             print(row)
-    
-    def display_vision(self, position, vision_pattern):
+
+    def display_vision(self, position, vision_pattern, player_revealed):
         """
-        Muestra en consola en forma de tabla las casillas que se pueden ver desde la posición dada,
-        según el patrón de visión. Se utiliza la aritmética modular para cubrir los bordes.
-        Se muestra una submatriz centrada en la posición del jugador, con dimensiones determinadas por
-        el mayor desplazamiento en el patrón.
+        Muestra en consola el mapa completo, pero solo muestra el contenido real de las celdas que
+        se encuentran en el conjunto de visión del jugador (calculado a partir de vision_pattern)
+        y que el jugador ha revelado en su vista personal. El resto se muestra con '?'.
         
         :param position: Tupla (i, j) con la posición del jugador.
         :param vision_pattern: Lista de tuplas (dx, dy) que indican los desplazamientos visibles.
+        :param player_revealed: Matriz 2D de booleanos (del mismo tamaño que el mapa) del jugador.
         """
         i0, j0 = position
-        # Aseguramos que la posición central (0,0) esté incluida
-        full_pattern = set(vision_pattern)
-        full_pattern.add((0, 0))
+        # Calcular el conjunto de celdas visibles (globales) a partir del patrón
+        visible_set = set()
+        for dx, dy in vision_pattern:
+            i = (i0 + dx) % self.size
+            j = (j0 + dy) % self.size
+            visible_set.add((i, j))
+        visible_set.add((i0 % self.size, j0 % self.size))
         
-        # Determinar el máximo desplazamiento en filas y columnas.
-        max_dx = max(abs(dx) for dx, dy in full_pattern)
-        max_dy = max(abs(dy) for dx, dy in full_pattern)
-        
-        # Crear la submatriz (tabla) de visión.
-        table = []
-        for di in range(-max_dx, max_dx + 1):
+        print("Visión desde tu posición:")
+        for i in range(self.size):
             row = []
-            for dj in range(-max_dy, max_dy + 1):
-                if (di, dj) in full_pattern:
-                    # Calcula la posición real en el mapa usando aritmética modular.
-                    i = (i0 + di) % self.size
-                    j = (j0 + dj) % self.size
-                    cell = self.content[i][j] if self.revealed[i][j] else "?"
+            for j in range(self.size):
+                if (i, j) in visible_set and player_revealed[i][j]:
+                    # Si la celda es visible para el jugador y fue revelada por él, mostrar contenido real.
+                    cell = self.content[i][j] if self.content[i][j] != " " else "."
                     row.append(cell)
                 else:
                     row.append("?")
-            table.append(row)
-        
-        # Imprimir la tabla.
-        print("Visión desde tu posición:")
-        for row in table:
             print(' '.join(row))
         print("-" * 30)
 
@@ -104,15 +95,20 @@ class Map:
 if __name__ == "__main__":
     # Generamos un mapa para el nivel "facil"
     game_map = Map("facil")
-    print("Tablero inicial (todo oculto):")
+    print("Tablero global inicial (todo oculto):")
     game_map.display_revealed()
     
-    # Revelamos algunas casillas para ver el contenido
-    print("\nRevelamos la casilla (0,0) y (2,3):")
-    game_map.reveal_cell(0, 0)
-    game_map.reveal_cell(2, 3)
+    # Revelamos algunas casillas globalmente
+    game_map.reveal_cell_global(0, 0)
+    game_map.reveal_cell_global(2, 3)
+    print("\nTablero global tras revelar algunas casillas:")
     game_map.display_revealed()
     
     # Mostrar visión desde la posición (2,2) usando el patrón del nivel facil
-    print("\nVisión desde (2,2) en nivel facil:")
-    game_map.display_vision((2,2), levels["facil"]["vision"])
+    # Para el ejemplo, creamos una matriz 'revealed' ficticia para el jugador
+    player_revealed = [[False for _ in range(game_map.size)] for _ in range(game_map.size)]
+    player_revealed[2][2] = True
+    player_revealed[0][0] = True
+    player_revealed[2][3] = True
+    print("\nVisión desde (2,2):")
+    game_map.display_vision((2,2), levels["facil"]["vision"], player_revealed)
