@@ -14,7 +14,11 @@ levels = {
          "puntos_trampa": -20,
          "puntos_rey": -30,
          "max_energia": 100,
-         "bosques": 2
+         "bosques": 2,
+         # En el modo fácil: se pueden ver dos casillas en vertical y horizontal y una en diagonales.
+         "vision": [(-2,0), (-1,0), (1,0), (2,0),
+                    (0,-2), (0,-1), (0,1), (0,2),
+                    (-1,-1), (-1,1), (1,-1), (1,1)]
     },
     "rockear": {
          "board_size": 10,
@@ -28,7 +32,10 @@ levels = {
          "puntos_trampa": -25,
          "puntos_rey": -40,
          "max_energia": 50,
-         "bosques": 10
+         "bosques": 10,
+         # Modo rockear: se pueden ver solo las casillas inmediatas (Moore neighborhood)
+         "vision": [(-1,0), (1,0), (0,-1), (0,1),
+                    (-1,-1), (-1,1), (1,-1), (1,1)]
     },
     "dificil": {
          "board_size": 15,
@@ -42,6 +49,8 @@ levels = {
          "puntos_trampa": -30,
          "puntos_rey": -50,
          "max_energia": 25,
-         "bosques": 25
+         "bosques": 25,
+         # Modo difícil: se ven únicamente las casillas verticales y horizontales inmediatas
+         "vision": [(-1,0), (1,0), (0,-1), (0,1)]
     }
 }
