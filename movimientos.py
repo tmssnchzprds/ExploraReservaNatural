@@ -1,31 +1,31 @@
 # movimientos.py
+import random
 
 class Explorer:
-    def __init__(self, name, energy, start_pos=(0, 0)):
+    def __init__(self, name, energy, board_size, start_pos=None):
         """
-        Inicializa un explorador con un nombre, una cantidad de energía y una posición inicial.
-        :param name: Nombre del explorador.
-        :param energy: Energía inicial del explorador.
-        :param start_pos: Tupla (fila, columna) de la posición inicial.
+        Inicializa un explorador con un nombre, energía y posición aleatoria (o especificada).
+        Además, crea una matriz 'revealed' para almacenar las celdas que este jugador ha visto.
         """
         self.name = name
         self.energy = energy
-        self.position = start_pos  # (fila, columna)
+        self.board_size = board_size
+        if start_pos is None:
+            self.position = (random.randint(0, board_size - 1), random.randint(0, board_size - 1))
+        else:
+            self.position = start_pos
+        # Matriz de celdas reveladas para este jugador (inicialmente todas False)
+        self.revealed = [[False for _ in range(board_size)] for _ in range(board_size)]
+        # Revelamos la casilla inicial para este jugador
+        i, j = self.position
+        self.revealed[i][j] = True
 
     def move(self, direction, board_size):
         """
-        Mueve al explorador una casilla en la dirección indicada, con efecto de "envoltura" en el tablero.
-        Las direcciones válidas son:
-            - 'W': arriba (fila - 1)
-            - 'S': abajo (fila + 1)
-            - 'A': izquierda (columna - 1)
-            - 'D': derecha (columna + 1)
-        Se actualiza la posición del explorador aplicando aritmética modular.
-        :param direction: Cadena con la dirección ('W', 'A', 'S', 'D')
-        :param board_size: Tamaño del tablero (número de filas o columnas, se asume tablero cuadrado)
+        Mueve al explorador una casilla en la dirección indicada, con efecto esférico.
+        Direcciones válidas: 'W', 'A', 'S', 'D'.
         """
         i, j = self.position
-
         if direction.upper() == 'W':
             i = (i - 1) % board_size
         elif direction.upper() == 'S':
@@ -36,21 +36,10 @@ class Explorer:
             j = (j + 1) % board_size
         else:
             raise ValueError("Dirección no válida. Usa 'W', 'A', 'S' o 'D'.")
-
         self.position = (i, j)
+        # Al moverse, se revela la nueva casilla en su propio mapa
+        self.revealed[i][j] = True
 
     def __str__(self):
         return f"Explorer {self.name}: Posición {self.position}, Energía {self.energy}"
 
-# Ejemplo de uso para pruebas
-if __name__ == "__main__":
-    board_size = 5  # Ejemplo de un tablero de 5x5 (puede venir de var_globals en el juego)
-    explorer = Explorer("Jugador1", energy=100, start_pos=(0, 0))
-    print("Estado inicial:")
-    print(explorer)
-    
-    # Simulación de movimientos
-    movimientos = ['W', 'D', 'S', 'A', 'S']
-    for move_cmd in movimientos:
-        explorer.move(move_cmd, board_size)
-        print(f"Después de mover {move_cmd}: {explorer}")
