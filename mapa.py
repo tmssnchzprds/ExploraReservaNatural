@@ -61,23 +61,25 @@ class Map:
                 row += cell + " "
             print(row)
     
-    def display_vision(self, position, vision_pattern):
-        """
-        Muestra en consola las casillas que se pueden ver desde la posición dada, según el patrón de visión.
-        Se utiliza la aritmética modular para cubrir los bordes.
-        :param position: Tupla (i, j) con la posición del jugador.
-        :param vision_pattern: Lista de tuplas (dx, dy) que indican los desplazamientos visibles.
-        """
-        i0, j0 = position
-        print("Visión desde tu posición:")
-        for dx, dy in vision_pattern:
-            i = (i0 + dx) % self.size
-            j = (j0 + dy) % self.size
-            content = self.content[i][j] if self.revealed[i][j] or True else "?"  
-            # Aquí decidimos mostrar el contenido real para que el jugador vea qué hay en esas casillas.
-            # print(f"({i0+dx}, {j0+dy}) -> {content}")
-        game_map.display_revealed()
-        print("-" * 30)
+def display_vision(self, position, vision_pattern):
+    """
+    Muestra en consola las casillas que se pueden ver desde la posición dada, según el patrón de visión.
+    Se utiliza la aritmética modular para cubrir los bordes.
+    :param position: Tupla (i, j) con la posición del jugador.
+    :param vision_pattern: Lista de tuplas (dx, dy) que indican los desplazamientos visibles.
+    """
+    i0, j0 = position
+    vision_matrix = [['?' for _ in range(self.size)] for _ in range(self.size)]
+
+    for dx, dy in vision_pattern:
+        i = (i0 + dx) % self.size
+        j = (j0 + dy) % self.size
+        vision_matrix[i][j] = self.content[i][j] if self.revealed[i][j] else '?'
+
+    print("Visión desde tu posición:")
+    for row in vision_matrix:
+        print(' '.join(row))
+    print("-" * 30)
 
 # Ejemplo de uso para pruebas
 if __name__ == "__main__":
